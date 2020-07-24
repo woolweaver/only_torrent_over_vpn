@@ -1,11 +1,19 @@
 #! /bin/bash
 
-VPNIF="tun0"
-VPNUSER="qbit"
+# Interface we want traffic to go to
+export VPNIF="tun0"
+
+# User for bit torrent client
+export VPNUSER="qbit"
+
+# regex filter for VPN gateway
 GATEWAYIP=`ifconfig $VPNIF | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | egrep -v '255|(127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})' | tail -n1`
 
-if [[ `ip rule list | grep -c 0x1` == 0 ]]; then
-ip rule add from all fwmark 0x1 lookup $VPNUSER
+# How we can keep up with traffic of a certain user
+export MARK="0x3"
+
+if [[ `ip rule list | grep -c $MARK` == 0 ]]; then
+ip rule add from all fwmark $MARK lookup $VPNUSER
 fi
 
 ip route replace default via $GATEWAYIP table $VPNUSER 

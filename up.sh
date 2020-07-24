@@ -1,7 +1,7 @@
 #! /bin/bash
 
 VPNIF="tun0"
-VPNUSER="vpnuser"
+VPNUSER="qbit"
 GATEWAYIP=`ifconfig $VPNIF | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | egrep -v '255|(127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})' | tail -n1`
 
 if [[ `ip rule list | grep -c 0x1` == 0 ]]; then

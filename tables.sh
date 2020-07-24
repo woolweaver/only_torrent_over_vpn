@@ -1,19 +1,26 @@
 #! /bin/bash
 
 export INTERFACE="tun0"
-export VPNUSER="vpnuser"
-export LANIP="192.168.1.0/24"
 export NETIF="br0"
+
+export VPNUSER="qbit"
+
+export LANIP="10.0.0.0/24"
+
+export MARK="0x3"
+
+export DNS1="1.1.1.1"
+export DNS2="1.0.0.1"
 
 iptables -F -t nat
 iptables -F -t mangle
 iptables -F -t filter
 
 # mark packets from $VPNUSER
-iptables -t mangle -A OUTPUT ! --dest $LANIP  -m owner --uid-owner $VPNUSER -j MARK --set-mark 0x1
-iptables -t mangle -A OUTPUT --dest $LANIP -p udp --dport 53 -m owner --uid-owner $VPNUSER -j MARK --set-mark 0x1
-iptables -t mangle -A OUTPUT --dest $LANIP -p tcp --dport 53 -m owner --uid-owner $VPNUSER -j MARK --set-mark 0x1
-iptables -t mangle -A OUTPUT ! --src $LANIP -j MARK --set-mark 0x1
+iptables -t mangle -A OUTPUT ! --dest $LANIP  -m owner --uid-owner $VPNUSER -j MARK --set-mark $MARK
+iptables -t mangle -A OUTPUT --dest $LANIP -p udp --dport 53 -m owner --uid-owner $VPNUSER -j MARK --set-mark $MARK
+iptables -t mangle -A OUTPUT --dest $LANIP -p tcp --dport 53 -m owner --uid-owner $VPNUSER -j MARK --set-mark $MARK
+iptables -t mangle -A OUTPUT ! --src $LANIP -j MARK --set-mark $MARK
 
 # allow responses
 iptables -A INPUT -i $INTERFACE -m conntrack --ctstate ESTABLISHED -j ACCEPT
@@ -29,8 +36,8 @@ iptables -A INPUT -i $INTERFACE -p udp --dport 7881 -j ACCEPT
 iptables -A INPUT -i $INTERFACE -j REJECT
 
 # send DNS to google for $VPNUSER
-iptables -t nat -A OUTPUT --dest $LANIP -p udp --dport 53  -m owner --uid-owner $VPNUSER  -j DNAT --to-destination 8.8.4.4
-iptables -t nat -A OUTPUT --dest $LANIP -p tcp --dport 53  -m owner --uid-owner $VPNUSER  -j DNAT --to-destination 8.8.8.8
+iptables -t nat -A OUTPUT --dest $LANIP -p udp --dport 53  -m owner --uid-owner $VPNUSER  -j DNAT --to-destination $DNS1
+iptables -t nat -A OUTPUT --dest $LANIP -p tcp --dport 53  -m owner --uid-owner $VPNUSER  -j DNAT --to-destination $DNS2
 
 # let $VPNUSER access lo and $INTERFACE
 iptables -A OUTPUT -o lo -m owner --uid-owner $VPNUSER -j ACCEPT

@@ -10,19 +10,19 @@ _______
    3. VPN server/service
 _______
    
-As we all know normally when connected to a VPN all internet traffic goes over the VPN interface, but I only want traffic from [qBittorrent](https://www.qbittorrent.org/) to use the VPN. 
+As we all know normally when connected to a VPN all internet traffic goes over the VPN, but I only want traffic from [qBittorrent](https://www.qbittorrent.org/) to use the VPN. 
 
-IPTables doesn’t have the option to filter specific processes, but it can filter based on a specific user (or application if it is started by the user in question).
+IPTables can't filter for a specific application, but it can filter for a specific user.
 
-IPTables doesn’t deal with routing packets to interfaces, so we can’t use it to route packets however we can mark packets from the user we specify so they can be routed by the ip routing table. 
+IPTables doesn’t deal with routing, so we'll have to mark traffic from the user we specify so they can be routed by the ip routing table. 
 
-The following script will **flush all existing** firewall rules (Please save them if they are important) and apply the firewall rules that we need (obviously change the variables at the beginning of the script to match your needs):
+Use the following script to apply the needed firewall rules (change the variables to what you need):
 
  * see [tables.sh](tables.sh)
 
-Now all traffic from the specified user will be marked for the VPN. Now we need to add a routing table, by adding the table name to the rt_tables file. 
+Now all traffic from the specified user will be marked with a `0x1`. Now we need to add our table name to `/etc/iproute2/rt_tables` so that traffic will go to the right interface. 
 
-On Rapbian this file is in `/etc/iproute2/rt_tables` and appears as follows:
+On Raspbian is appears as follows:
 
 ```
 #
@@ -39,7 +39,7 @@ On Rapbian this file is in `/etc/iproute2/rt_tables` and appears as follows:
 200     vpnuser # This is the one we added
 ```
 
-Next we need a script to configure the routing rules for the marked packets:
+Now we need to configure the routing rules for the marked packets:
 
 * see [up.sh](up.sh)
 

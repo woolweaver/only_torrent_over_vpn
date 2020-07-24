@@ -1,6 +1,6 @@
 # Force User To Use Specific Network Interface
 
-Make all network traffic for a specific user (or in my case [qBittorrent](https://www.qbittorrent.org/)) to use a specific network interface (a VPN).
+Make all network traffic for a specific user (or in my case [qBittorrent](https://www.qbittorrent.org/)) use a specific network interface (a VPN).
 
 _______
  * Needed things:

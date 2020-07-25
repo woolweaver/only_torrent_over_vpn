@@ -1,5 +1,7 @@
 #! /bin/bash
 
+iptables-restore < rules
+
 # Interface we want traffic to go to
 export VPNIF="tun0"
 
